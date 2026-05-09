@@ -814,33 +814,25 @@ window.loadAll = async function(){
     });
   } catch(e){ console.warn('activity docs error',e); }
 
-  // 3. Load user profile data from users/{uid}/data/main
+  // 3. Load user profile data and subscriptions using UIDs from activity docs
   const userProfiles = {};
   const userSubs = {};
   try {
-    const usersCol = await getDocs(collection(db,'users'));
-    const profileFetches = [];
-    usersCol.forEach(uDoc => {
-      profileFetches.push(
-        getDoc(doc(db,'users',uDoc.id,'data','main'))
-          .then(d => { if(d.exists()) userProfiles[uDoc.id] = d.data(); })
+    const fetches = [];
+    activityDocs.forEach(a => {
+      const uid = a.uid || a.id.replace('activity_','');
+      fetches.push(
+        getDoc(doc(db,'users',uid,'data','main'))
+          .then(d => { if(d.exists()) userProfiles[uid] = d.data(); })
           .catch(()=>{})
       );
-      profileFetches.push(
-        getDoc(doc(db,'users',uDoc.id,'subscription','access'))
-          .then(d => {
-            if(d.exists()){
-              const raw = d.data();
-              console.log('[SUB RAW]', uDoc.id, JSON.stringify(raw), 'expiresAt type:', typeof raw.expiresAt, raw.expiresAt);
-              userSubs[uDoc.id] = raw;
-            } else {
-              console.log('[SUB] no subscription doc for', uDoc.id);
-            }
-          })
-          .catch(e => console.error('[SUB ERROR]', uDoc.id, e))
+      fetches.push(
+        getDoc(doc(db,'users',uid,'subscription','access'))
+          .then(d => { if(d.exists()) userSubs[uid] = d.data(); })
+          .catch(()=>{})
       );
     });
-    await Promise.all(profileFetches);
+    await Promise.all(fetches);
   } catch(e){ console.warn('user profiles error',e); }
 
   // 4. Merge activity + profiles + subscriptions
@@ -1001,11 +993,11 @@ function renderTable(){
     let subBadge = '';
     let subBtn   = '';
     if(u.subStatus === 'active'){
-      const expStr = u.subExpiry ? fmtDate(u.subExpiry.toISOString()) : '—';
+      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
       subBadge = `<span class="sub-badge active">● Active</span><br><span style="font-size:9px;color:var(--ink3)">Exp: ${expStr}</span>`;
       subBtn   = `<button class="sub-btn lock" onclick="openLockUser('${esc(u.uid)}','${esc(u.name)}')">🔒 Lock</button>`;
     } else if(u.subStatus === 'expired'){
-      const expStr = u.subExpiry ? fmtDate(u.subExpiry.toISOString()) : '—';
+      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
       subBadge = `<span class="sub-badge expired">● Expired</span><br><span style="font-size:9px;color:var(--ink3)">Was: ${expStr}</span>`;
       subBtn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Renew</button>`;
     } else if(u.subStatus === 'locked'){

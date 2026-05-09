@@ -828,8 +828,16 @@ window.loadAll = async function(){
       );
       profileFetches.push(
         getDoc(doc(db,'users',uDoc.id,'subscription','access'))
-          .then(d => { if(d.exists()) userSubs[uDoc.id] = d.data(); })
-          .catch(()=>{})
+          .then(d => {
+            if(d.exists()){
+              const raw = d.data();
+              console.log('[SUB RAW]', uDoc.id, JSON.stringify(raw), 'expiresAt type:', typeof raw.expiresAt, raw.expiresAt);
+              userSubs[uDoc.id] = raw;
+            } else {
+              console.log('[SUB] no subscription doc for', uDoc.id);
+            }
+          })
+          .catch(e => console.error('[SUB ERROR]', uDoc.id, e))
       );
     });
     await Promise.all(profileFetches);
@@ -848,18 +856,10 @@ window.loadAll = async function(){
     let subExpiry = null;
     if(sub){
       subStatus = sub.status || 'none';
-      if(sub.expiresAt !== undefined && sub.expiresAt !== null){
-        let exp;
-        const ea = sub.expiresAt;
-        if(typeof ea.toMillis === 'function')       exp = ea.toMillis();       // Firestore Timestamp
-        else if(typeof ea.toDate === 'function')    exp = ea.toDate().getTime(); // Firestore Timestamp alt
-        else if(ea && typeof ea === 'object' && ('seconds' in ea)) exp = ea.seconds * 1000; // raw {seconds, nanoseconds}
-        else if(ea && typeof ea === 'object' && ('_seconds' in ea)) exp = ea._seconds * 1000;
-        else exp = Number(ea);  // plain number or string
-        if(!isNaN(exp) && exp > 0){
-          subExpiry = new Date(exp);
-          if(subStatus === 'active' && Date.now() > exp) subStatus = 'expired';
-        }
+      if(sub.expiresAt){
+        const exp = sub.expiresAt.toMillis ? sub.expiresAt.toMillis() : Number(sub.expiresAt);
+        subExpiry = new Date(exp);
+        if(subStatus === 'active' && Date.now() > exp) subStatus = 'expired';
       }
     }
     return {
@@ -1001,11 +1001,11 @@ function renderTable(){
     let subBadge = '';
     let subBtn   = '';
     if(u.subStatus === 'active'){
-      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      const expStr = u.subExpiry ? fmtDate(u.subExpiry.toISOString()) : '—';
       subBadge = `<span class="sub-badge active">● Active</span><br><span style="font-size:9px;color:var(--ink3)">Exp: ${expStr}</span>`;
       subBtn   = `<button class="sub-btn lock" onclick="openLockUser('${esc(u.uid)}','${esc(u.name)}')">🔒 Lock</button>`;
     } else if(u.subStatus === 'expired'){
-      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      const expStr = u.subExpiry ? fmtDate(u.subExpiry.toISOString()) : '—';
       subBadge = `<span class="sub-badge expired">● Expired</span><br><span style="font-size:9px;color:var(--ink3)">Was: ${expStr}</span>`;
       subBtn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Renew</button>`;
     } else if(u.subStatus === 'locked'){

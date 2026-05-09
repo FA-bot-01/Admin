@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FA Admin · Sierra Leone</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500;600&family=Literata:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #1a2e1c;
+  --ink2:    #3a5c3d;
+  --ink3:    #6a8f6d;
+  --paper:   #f5f0e8;
+  --paper2:  #ede7d5;
+  --paper3:  #e4dcc8;
+  --rule:    #c8bfa8;
+  --rule2:   #b0a48c;
+  --red:     #8b2222;
+  --green:   #1a5c1a;
+  --accent:  #2a6b2e;
+  --gold:    #b8860b;
+  --radius: 6px;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Literata', Georgia, serif;
+  --display: 'DM Serif Display', Georgia, serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow-x: hidden; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  background-image: repeating-linear-gradient(transparent,transparent 27px,var(--rule) 27px,var(--rule) 28px);
+  background-attachment: fixed;
+}
+
+/* ── GATE ── */
+#gate {
+  position: fixed; inset: 0;
+  background: var(--paper);
+  background-image: repeating-linear-gradient(transparent,transparent 27px,var(--rule) 27px,var(--rule) 28px);
+  z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.gate-card {
+  background: var(--paper2);
+  border: 1px solid var(--rule2);
+  border-radius: 12px;
+  padding: 40px 36px 36px;
+  max-width: 380px; width: 100%;
+  text-align: center;
+  animation: fadeUp .5s ease both;
+  box-shadow: 0 8px 40px rgba(26,46,28,.12);
+}
+.gate-icon {
+  font-size: 40px; margin-bottom: 12px;
+  display: block;
+}
+.gate-title {
+  font-family: var(--display);
+  font-size: 28px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.gate-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 28px;
+}
+.gate-input {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-family: var(--mono);
+  font-size: 18px;
+  letter-spacing: .25em;
+  text-align: center;
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 10px;
+  transition: border .15s;
+}
+.gate-input:focus { border-color: var(--accent); }
+.gate-err {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  min-height: 16px;
+  margin-bottom: 10px;
+}
+.gate-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: .05em;
+  transition: opacity .15s;
+}
+.gate-btn:hover { opacity: .85; }
+
+/* ── SHELL ── */
+#app { display: none; max-width: 1100px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ── HEADER ── */
+.dash-header {
+  padding: 32px 0 20px;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.dash-title { font-family: var(--display); font-size: clamp(24px,4vw,38px); line-height: 1; }
+.dash-sub { font-family: var(--mono); font-size: 10px; color: var(--ink3); letter-spacing: .12em; text-transform: uppercase; margin-top: 4px; }
+.header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.hdr-btn {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  border: 1px solid var(--rule); background: transparent; color: var(--ink2);
+  padding: 5px 12px; border-radius: var(--radius); cursor: pointer; transition: all .15s;
+}
+.hdr-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.sync-dot {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--mono); font-size: 10px; color: var(--ink3);
+  background: var(--paper2); border: 1px solid var(--rule);
+  padding: 4px 10px; border-radius: 99px;
+}
+.sync-dot .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rule2); }
+.sync-dot.live .dot { background: var(--green); animation: pulse 2s infinite; }
+.sync-dot.loading .dot { background: var(--gold); animation: pulse .6s infinite; }
+
+/* ── KPI GRID ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 28px;
+  animation: fadeUp .4s ease both;
+}
+@media(max-width:700px){ .kpi-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:400px){ .kpi-grid { grid-template-columns: 1fr; } }
+.kpi-cell {
+  background: var(--paper2);
+  padding: 20px 22px;
+  position: relative;
+}
+.kpi-val {
+  font-family: var(--mono);
+  font-size: clamp(22px,3vw,32px);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.kpi-val.green { color: var(--green); }
+.kpi-val.red   { color: var(--red); }
+.kpi-val.gold  { color: var(--gold); }
+.kpi-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-top: 6px;
+}
+.kpi-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink3);
+  margin-top: 3px;
+}
+.kpi-trend {
+  position: absolute; top: 14px; right: 14px;
+  font-family: var(--mono); font-size: 11px;
+  padding: 2px 7px; border-radius: 99px;
+  background: var(--paper3); color: var(--ink3);
+  border: 1px solid var(--rule);
+}
+.kpi-trend.up   { background: #d4edda; color: var(--green); border-color: var(--green); }
+.kpi-trend.down { background: #fdecea; color: var(--red); border-color: var(--red); }
+
+/* ── TWO COL ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+@media(max-width:700px){ .two-col { grid-template-columns: 1fr; } }
+
+/* ── SECTION CARD ── */
+.section-card {
+  background: var(--paper2);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  animation: fadeUp .4s .08s ease both;
+}
+.section-card.full { grid-column: 1 / -1; }
+.section-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.section-title-big {
+  font-family: var(--display);
+  font-size: 20px;
+  font-style: italic;
+  color: var(--ink2);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* ── USER TABLE ── */
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.user-table th {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--ink3);
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+.user-table td {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+  vertical-align: middle;
+}
+.user-table tr:last-child td { border-bottom: none; }
+.user-table tr:hover td { background: var(--paper3); }
+.uid-chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--paper3);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 2px 7px;
+  color: var(--ink2);
+  letter-spacing: .04em;
+}
+.status-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+.status-dot.active  { background: var(--green); }
+.status-dot.recent  { background: var(--gold); }
+.status-dot.dormant { background: var(--rule2); }
+.biz-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-family: var(--mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  color: var(--ink3);
+}
+
+/* ── ACTIVITY CHART ── */
+.chart-wrap {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 14px;
+  overflow-x: auto;
+}
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 100px;
+  padding: 0 2px;
+  min-width: 200px;
+}
+.bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 20px;
+}
+.bar-fill {
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  background: var(--accent);
+  transition: height .5s ease;
+  min-height: 2px;
+}
+.bar-lbl {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--ink3);
+  white-space: nowrap;
+}
+
+/* ── STAT ROW ── */
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-row-label { color: var(--ink2); }
+.stat-row-val { font-weight: 600; color: var(--ink); }
+
+/* ── PUSH SECTION ── */
+.push-input {
+  width: 100%;
+  background: var(--paper);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  font-family: var(--serif);
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  margin-bottom: 8px;
+  transition: border .15s;
+}
+.push-input:focus { border-color: var(--accent); }
+.push-btn {
+  padding: 9px 22px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+  transition: opacity .15s;
+  margin-top: 4px;
+}
+.push-btn:hover { opacity: .85; }
+.push-btn.danger { background: var(--red); }
+.push-btn.success { background: var(--green); }
+
+/* ── EMPTY ── */
+.empty-state {
+  text-align: center;
+  padding: 32px 0;
+  font-family: var(--display);
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink3);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--paper);
+  font-family: var(--mono); font-size: 12px;
+  padding: 10px 20px; border-radius: 99px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s; z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── SKELETON ── */
+.skel {
+  background: linear-gradient(90deg, var(--paper3) 25%, var(--rule) 50%, var(--paper3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  display: inline-block;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+@keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.4; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+/* ── SEARCH / FILTER ── */
+.filter-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: center;
+}
+.filter-input {
+  flex: 1; min-width: 160px;
+  background: var(--paper);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+}
+.filter-input:focus { border-color: var(--accent); }
+.filter-select {
+  background: var(--paper);
+  border: 1px solid var(--rule2);
+  border-radius: var(--radius);
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink2);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+.badge-green { background: #d4edda; color: var(--green); }
+.badge-red   { background: #fdecea; color: var(--red); }
+.badge-gold  { background: #fef3cd; color: var(--gold); }
+.badge-grey  { background: var(--paper3); color: var(--ink3); }
+
+/* ── RESPONSIVE TABLE WRAPPER ── */
+.table-wrap { overflow-x: auto; }
+
+/* ── PAGINATION ── */
+.pager {
+  display: flex; gap: 4px; margin-top: 12px; justify-content: center;
+  font-family: var(--mono); font-size: 11px;
+}
+.page-btn {
+  padding: 4px 10px; border: 1px solid var(--rule); border-radius: 4px;
+  background: transparent; color: var(--ink3); cursor: pointer; transition: all .15s;
+}
+.page-btn:hover, .page-btn.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.page-btn:disabled { opacity: .4; cursor: not-allowed; }
+/* ── Subscription controls ── */
+.sub-badge { display:inline-flex; align-items:center; gap:4px; font-family:var(--mono);
+  font-size:10px; font-weight:600; padding:3px 8px; border-radius:20px; }
+.sub-badge.active  { background:rgba(42,107,46,.12); color:#2a6b2e; }
+.sub-badge.expired { background:rgba(200,80,40,.10); color:#c85028; }
+.sub-badge.locked  { background:rgba(100,60,180,.10); color:#5c3ab4; }
+.sub-badge.none    { background:rgba(0,0,0,.06); color:var(--ink3); }
+.sub-btn { font-family:var(--mono); font-size:10px; padding:3px 8px; border-radius:6px;
+  border:1px solid var(--rule2); cursor:pointer; margin-top:4px; transition:all .15s; display:block; width:100%; }
+.sub-btn.activate  { background:#2a6b2e; color:#fff; border-color:#2a6b2e; }
+.sub-btn.activate:hover { background:#1e4e21; }
+.sub-btn.lock      { background:#c85028; color:#fff; border-color:#c85028; }
+.sub-btn.lock:hover { background:#9e3d1c; }
+.sub-btn.unlock    { background:#5c3ab4; color:#fff; border-color:#5c3ab4; }
+.sub-btn.unlock:hover { background:#432b88; }
+/* Modal */
+#sub-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45);
+  z-index:9999; align-items:center; justify-content:center; }
+#sub-modal.open { display:flex; }
+.sub-modal-card { background:var(--paper); border-radius:14px; padding:28px 24px;
+  width:100%; max-width:360px; font-family:var(--mono); }
+.sub-modal-title { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px; }
+.sub-modal-sub   { font-size:10px; color:var(--ink3); margin-bottom:18px; }
+.sub-modal-label { font-size:10px; color:var(--ink2); margin-bottom:4px; display:block; letter-spacing:.06em; text-transform:uppercase; }
+.sub-modal-input { width:100%; padding:9px 12px; border:1px solid var(--rule2); border-radius:8px;
+  font-family:var(--mono); font-size:12px; background:var(--paper2); color:var(--ink); margin-bottom:14px; box-sizing:border-box; }
+.sub-modal-row   { display:flex; gap:8px; margin-top:4px; }
+.sub-modal-btn   { flex:1; padding:10px; border:none; border-radius:8px; font-family:var(--mono);
+  font-size:12px; font-weight:600; cursor:pointer; }
+.sub-modal-btn.confirm { background:var(--ink); color:var(--paper); }
+.sub-modal-btn.cancel  { background:var(--paper3); color:var(--ink2); }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN GATE ── -->
+<div id="gate">
+  <div class="gate-card">
+    <span class="gate-icon">🛡</span>
+    <div class="gate-title">Admin Dashboard</div>
+    <div class="gate-sub">FA Accountant · Sierra Leone</div>
+    <input type="password" class="gate-input" id="pin-input" placeholder="••••••••••"
+      maxlength="20" onkeydown="if(event.key==='Enter')verifyPin()">
+    <div class="gate-err" id="pin-err"></div>
+    <button class="gate-btn" onclick="verifyPin()">Enter Dashboard →</button>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="app">
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px 80px">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">🛡 Admin Dashboard</div>
+        <div class="dash-sub">FA Accountant · Sierra Leone</div>
+      </div>
+      <div class="header-right">
+        <div class="sync-dot loading" id="sync-dot">
+          <span class="dot"></span>
+          <span id="sync-label">Loading…</span>
+        </div>
+        <button class="hdr-btn" onclick="loadAll()">↻ Refresh</button>
+        <button class="hdr-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- KPI Grid -->
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-cell">
+        <div class="kpi-val" id="k-total">—</div>
+        <div class="kpi-lbl">Total Users</div>
+        <div class="kpi-hint" id="k-total-hint">All registered</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-val green" id="k-active">—</div>
+        <div class="kpi-lbl">Active (7 days)</div>
+        <div class="kpi-hint" id="k-active-hint">Seen this week</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-val gold" id="k-today">—</div>
+        <div class="kpi-lbl">Active Today</div>
+        <div class="kpi-hint" id="k-today-hint">Opened app today</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-val" id="k-records">—</div>
+        <div class="kpi-lbl">Total Records</div>
+        <div class="kpi-hint">Transactions logged</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Activity chart + Quick stats -->
+    <div class="two-col">
+
+      <div class="section-card">
+        <div class="section-head">
+          <span>Activity — Last 30 Days</span>
+        </div>
+        <div class="chart-wrap">
+          <div class="bar-chart" id="activity-chart">
+            <div class="empty-state" style="width:100%">Loading chart…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head"><span>Engagement Breakdown</span></div>
+        <div id="engagement-rows">
+          <div class="stat-row"><span class="stat-row-label">Active today</span><span class="stat-row-val skel" style="width:40px;height:12px">&nbsp;</span></div>
+          <div class="stat-row"><span class="stat-row-label">Active this week</span><span class="stat-row-val skel" style="width:40px;height:12px">&nbsp;</span></div>
+          <div class="stat-row"><span class="stat-row-label">Active this month</span><span class="stat-row-val skel" style="width:40px;height:12px">&nbsp;</span></div>
+          <div class="stat-row"><span class="stat-row-label">Dormant (30+ days)</span><span class="stat-row-val skel" style="width:40px;height:12px">&nbsp;</span></div>
+          <div class="stat-row"><span class="stat-row-label">Avg records / user</span><span class="stat-row-val skel" style="width:40px;height:12px">&nbsp;</span></div>
+          <div class="stat-row"><span class="stat-row-label">Most common biz type</span><span class="stat-row-val skel" style="width:60px;height:12px">&nbsp;</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Full-width: Users table -->
+    <div class="section-card">
+      <div class="section-title-big">Registered Users</div>
+      <div class="filter-row">
+        <input class="filter-input" id="search-input" placeholder="Search by name or phone…" oninput="filterUsers()">
+        <select class="filter-select" id="status-filter" onchange="filterUsers()">
+          <option value="">All Status</option>
+          <option value="active">Active (today)</option>
+          <option value="week">Active (week)</option>
+          <option value="month">Active (month)</option>
+          <option value="dormant">Dormant</option>
+        </select>
+        <select class="filter-select" id="biz-filter" onchange="filterUsers()">
+          <option value="">All Businesses</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="user-table" id="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Business</th>
+              <th>Last Seen</th>
+              <th>Records</th>
+              <th>Activity</th>
+              <th>Subscription</th>
+            </tr>
+          </thead>
+          <tbody id="users-tbody">
+            <tr><td colspan="7" class="empty-state">Loading users…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager"></div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-top:8px;text-align:right" id="user-count-label"></div>
+    </div>
+
+    <!-- Row 2: Push notice + App version -->
+    <div class="two-col">
+
+      <div class="section-card">
+        <div class="section-head"><span>Push Update Notice</span></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink3);margin-bottom:10px;line-height:1.6">
+          Send a message that appears to all users when they next open the app.
+        </div>
+        <input class="push-input" id="push-msg" placeholder="e.g. New feature: Supplier tracking added!">
+        <input class="push-input" id="push-ver" placeholder="New version number e.g. 1.3">
+        <button class="push-btn" onclick="pushNotice()">📢 Push to All Users</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-head"><span>App Info</span></div>
+        <div class="stat-row">
+          <span class="stat-row-label">App Version</span>
+          <span class="stat-row-val" id="info-ver">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-row-label">Firebase Project</span>
+          <span class="stat-row-val" style="font-size:10px">financial-assistant-4effa</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-row-label">HTTPS</span>
+          <span class="stat-row-val" id="info-https">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-row-label">Last stats update</span>
+          <span class="stat-row-val" id="info-lastupdated">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-row-label">Dashboard access</span>
+          <span class="badge badge-green">● Authorised</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── Subscription Modal ── -->
+<div id="sub-modal">
+  <div class="sub-modal-card">
+    <div class="sub-modal-title" id="sub-modal-title">Activate Subscription</div>
+    <div class="sub-modal-sub" id="sub-modal-sub">Set expiry date for this user</div>
+    <label class="sub-modal-label">Expiry Date</label>
+    <input class="sub-modal-input" type="date" id="sub-expiry-input">
+    <div class="sub-modal-row">
+      <button class="sub-modal-btn cancel" onclick="closeSubModal()">Cancel</button>
+      <button class="sub-modal-btn confirm" id="sub-modal-confirm" onclick="confirmActivate()">Activate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+// PIN is stored as a SHA-256 hash — the actual password is never in this file.
+// To change the PIN: run `echo -n 'yourNewPin' | sha256sum` and paste the result below.
+const ADMIN_PIN_HASH = 'c99f7d50c01e4aba59e66f452a04ca77f5d96ab53bf444194209a5ab30b58091';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDvaFc28cW6oaHquyC6-FC_mfKzavBrjuw",
+  authDomain: "financial-assistant-4effa.firebaseapp.com",
+  projectId: "financial-assistant-4effa",
+  storageBucket: "financial-assistant-4effa.firebasestorage.app",
+  messagingSenderId: "110070630941",
+  appId: "1:110070630941:web:85c77794d98332a21ed4f4"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
+// ── Helpers ──────────────────────────────────────────────────
+let _allUsers  = [];
+let _filtered  = [];
+let _page      = 0;
+const PAGE_SIZE = 20;
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+function setSyncDot(state, label){
+  const el = document.getElementById('sync-dot');
+  el.className = 'sync-dot ' + (state==='live'?'live':'loading');
+  document.getElementById('sync-label').textContent = label||'';
+}
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d)) return '—';
+  return d.toLocaleDateString('en-SL',{day:'2-digit',month:'short',year:'numeric'});
+}
+function fmtTime(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  if(isNaN(d)) return '—';
+  return d.toLocaleTimeString('en-SL',{hour:'2-digit',minute:'2-digit'});
+}
+function timeAgo(iso){
+  if(!iso) return '—';
+  const secs = (Date.now() - new Date(iso)) / 1000;
+  if(secs < 60)    return 'just now';
+  if(secs < 3600)  return Math.round(secs/60)+'m ago';
+  if(secs < 86400) return Math.round(secs/3600)+'h ago';
+  const days = Math.round(secs/86400);
+  if(days < 7)     return days+'d ago';
+  if(days < 31)    return Math.round(days/7)+'w ago';
+  return Math.round(days/30)+'mo ago';
+}
+function userStatus(lastSeen){
+  if(!lastSeen) return 'dormant';
+  const days = (Date.now() - new Date(lastSeen)) / 86400000;
+  if(days < 1)  return 'active';
+  if(days < 7)  return 'week';
+  if(days < 30) return 'month';
+  return 'dormant';
+}
+function statusBadge(s){
+  if(s==='active')  return '<span class="badge badge-green">● Today</span>';
+  if(s==='week')    return '<span class="badge badge-gold">● This week</span>';
+  if(s==='month')   return '<span class="badge badge-grey">● This month</span>';
+  return '<span class="badge badge-red">● Dormant</span>';
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── PIN Gate ──────────────────────────────────────────────────
+window.verifyPin = async function(){
+  const pin = document.getElementById('pin-input').value;
+  const err = document.getElementById('pin-err');
+  err.textContent = '';
+
+  // Hash the entered PIN using the browser's built-in Web Crypto API
+  const msgBuffer  = new TextEncoder().encode(pin);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray  = Array.from(new Uint8Array(hashBuffer));
+  const hashHex    = hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+
+  if(hashHex !== ADMIN_PIN_HASH){
+    err.textContent = 'Wrong PIN. Try again.';
+    document.getElementById('pin-input').value = '';
+    return;
+  }
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display  = 'block';
+  loadAll();
+};
+window.doLogout = function(){
+  document.getElementById('app').style.display  = 'none';
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('pin-input').value    = '';
+};
+document.getElementById('pin-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter') window.verifyPin();
+});
+
+// ── Load Everything ───────────────────────────────────────────
+window.loadAll = async function(){
+  setSyncDot('loading','Loading…');
+  try {
+  let stats = {};
+  try {
+    const snap = await getDoc(doc(db,'_system','stats'));
+    if(snap.exists()) stats = snap.data();
+  } catch(e){ console.warn('stats load error',e); }
+
+  // 2. Load all per-user activity docs (_system/activity_{uid})
+  let activityDocs = [];
+  try {
+    const col = await getDocs(collection(db,'_system'));
+    col.forEach(d => {
+      if(d.id.startsWith('activity_')){
+        activityDocs.push({ id: d.id, ...d.data() });
+      }
+    });
+  } catch(e){ console.warn('activity docs error',e); }
+
+  // 3. Load user profile data from users/{uid}/data/main
+  const userProfiles = {};
+  const userSubs = {};
+  try {
+    const usersCol = await getDocs(collection(db,'users'));
+    const profileFetches = [];
+    usersCol.forEach(uDoc => {
+      profileFetches.push(
+        getDoc(doc(db,'users',uDoc.id,'data','main'))
+          .then(d => { if(d.exists()) userProfiles[uDoc.id] = d.data(); })
+          .catch(()=>{})
+      );
+      profileFetches.push(
+        getDoc(doc(db,'users',uDoc.id,'subscription','access'))
+          .then(d => { if(d.exists()) userSubs[uDoc.id] = d.data(); })
+          .catch(()=>{})
+      );
+    });
+    await Promise.all(profileFetches);
+  } catch(e){ console.warn('user profiles error',e); }
+
+  // 4. Merge activity + profiles + subscriptions
+  _allUsers = activityDocs.map(a => {
+    const uid     = a.uid || a.id.replace('activity_','');
+    const profile = userProfiles[uid] || {};
+    const pdata   = profile._profile || {};
+    const records = (profile.records || []).length;
+    const settings= profile.settings || {};
+    const sub     = userSubs[uid] || null;
+    // Resolve subscription display status
+    let subStatus = 'none';
+    let subExpiry = null;
+    if(sub){
+      subStatus = sub.status || 'none';
+      if(sub.expiresAt !== undefined && sub.expiresAt !== null){
+        // expiresAt can be a Firestore Timestamp, a number (ms), or a string
+        let exp;
+        if(sub.expiresAt && typeof sub.expiresAt.toMillis === 'function'){
+          exp = sub.expiresAt.toMillis();
+        } else if(typeof sub.expiresAt === 'number'){
+          exp = sub.expiresAt;
+        } else {
+          exp = Number(sub.expiresAt);
+        }
+        if(!isNaN(exp)){
+          subExpiry = new Date(exp);
+          if(subStatus === 'active' && Date.now() > exp) subStatus = 'expired';
+        }
+      }
+      console.log('[Sub]', uid, '| status:', subStatus, '| expiresAt raw:', sub.expiresAt, '| subExpiry:', subExpiry);
+    }
+    return {
+      uid,
+      name:      pdata.name     || '—',
+      phone:     pdata.phone    || '—',
+      bizName:   settings.bizName || settings.bizId || '—',
+      bizId:     settings.bizId   || '',
+      lastSeen:  a.lastSeen || null,
+      records,
+      status:    userStatus(a.lastSeen),
+      subStatus,
+      subExpiry
+    };
+  });
+
+  // Sort by lastSeen desc
+  _allUsers.sort((a,b) => (b.lastSeen||'') > (a.lastSeen||'') ? 1 : -1);
+
+  // 5. Update KPIs
+  const today = new Date().toISOString().slice(0,10);
+  const totalUsers  = _allUsers.length || stats.userCount || 0;
+  const activeToday = _allUsers.filter(u=>u.status==='active').length;
+  const activeWeek  = _allUsers.filter(u=>u.status==='active'||u.status==='week').length;
+  const activeMonth = _allUsers.filter(u=>u.status!=='dormant').length;
+  const dormant     = _allUsers.filter(u=>u.status==='dormant').length;
+  const totalRecs   = _allUsers.reduce((s,u)=>s+u.records,0) || stats.totalRecords || 0;
+  const avgRecs     = totalUsers ? (totalRecs/totalUsers).toFixed(1) : '0';
+
+  document.getElementById('k-total').textContent   = totalUsers;
+  document.getElementById('k-active').textContent  = activeWeek;
+  document.getElementById('k-today').textContent   = activeToday;
+  document.getElementById('k-records').textContent = totalRecs.toLocaleString();
+
+  // Business type breakdown
+  const bizCounts = {};
+  _allUsers.forEach(u=>{ if(u.bizId){ bizCounts[u.bizId]=(bizCounts[u.bizId]||0)+1; } });
+  const topBiz = Object.entries(bizCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topBizName = topBiz ? (topBiz[0].replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())+' ('+topBiz[1]+')') : '—';
+
+  // Update engagement rows
+  document.getElementById('engagement-rows').innerHTML = `
+    <div class="stat-row"><span class="stat-row-label">Active today</span><span class="stat-row-val">${activeToday}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Active this week</span><span class="stat-row-val">${activeWeek}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Active this month</span><span class="stat-row-val">${activeMonth}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Dormant (30+ days)</span><span class="stat-row-val" style="color:var(--red)">${dormant}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Avg records / user</span><span class="stat-row-val">${avgRecs}</span></div>
+    <div class="stat-row"><span class="stat-row-label">Top business type</span><span class="stat-row-val" style="font-size:10px">${topBizName}</span></div>
+  `;
+
+  // Populate biz filter
+  const bizSel = document.getElementById('biz-filter');
+  const bizOpts = Object.keys(bizCounts).sort();
+  bizSel.innerHTML = '<option value="">All Businesses</option>' +
+    bizOpts.map(b=>`<option value="${esc(b)}">${esc(b.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</option>`).join('');
+
+  // 6. Activity chart (last 30 days)
+  buildActivityChart(activityDocs);
+
+  // 7. App info
+  document.getElementById('info-ver').textContent = stats.version || '1.2';
+  document.getElementById('info-https').innerHTML = location.protocol==='https:'
+    ? '<span class="badge badge-green">● Secured</span>'
+    : '<span class="badge badge-red">⚠ Not HTTPS</span>';
+  document.getElementById('info-lastupdated').textContent = stats.lastUpdated ? timeAgo(stats.lastUpdated) : '—';
+
+  // 8. Render table
+  filterUsers();
+
+  setSyncDot('live','Live');
+  toast('Dashboard refreshed ✓');
+  } catch(err) {
+    setSyncDot('error','Error');
+    toast('⚠ Failed to load data: ' + err.message);
+    console.error('loadAll error:', err);
+  }
+};
+
+function buildActivityChart(actDocs){
+  const days = 14; // show last 14 days
+  const counts = {};
+  const today = new Date();
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    counts[d.toISOString().slice(0,10)] = 0;
+  }
+  actDocs.forEach(a=>{
+    const d = a.lastSeen ? a.lastSeen.slice(0,10) : null;
+    if(d && d in counts) counts[d]++;
+  });
+  const entries = Object.entries(counts);
+  const maxVal  = Math.max(...entries.map(e=>e[1]),1);
+  const chart   = document.getElementById('activity-chart');
+  chart.innerHTML = entries.map(([date,count])=>{
+    const pct = Math.round((count/maxVal)*90);
+    const lbl = new Date(date).toLocaleDateString('en-SL',{day:'numeric',month:'short'});
+    return `<div class="bar-col">
+      <div class="bar-fill" style="height:${pct}px" title="${count} users on ${lbl}"></div>
+      <div class="bar-lbl">${lbl.split(' ')[0]}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Table / Filter / Paginate ─────────────────────────────────
+window.filterUsers = function(){
+  const q   = (document.getElementById('search-input').value||'').toLowerCase();
+  const st  = document.getElementById('status-filter').value;
+  const biz = document.getElementById('biz-filter').value;
+  _filtered = _allUsers.filter(u => {
+    if(q && !u.name.toLowerCase().includes(q) && !u.phone.toLowerCase().includes(q)) return false;
+    if(st){
+      if(st==='active'  && u.status!=='active') return false;
+      if(st==='week'    && u.status!=='week' && u.status!=='active') return false;
+      if(st==='month'   && u.status==='dormant') return false;
+      if(st==='dormant' && u.status!=='dormant') return false;
+    }
+    if(biz && u.bizId !== biz) return false;
+    return true;
+  });
+  _page = 0;
+  renderTable();
+};
+
+function renderTable(){
+  const tbody = document.getElementById('users-tbody');
+  const start = _page * PAGE_SIZE;
+  const slice = _filtered.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('user-count-label').textContent =
+    `Showing ${start+1}–${Math.min(start+slice.length, _filtered.length)} of ${_filtered.length} users`;
+
+  if(!slice.length){
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No users found</td></tr>`;
+    document.getElementById('pager').innerHTML='';
+    return;
+  }
+
+  tbody.innerHTML = slice.map(u => {
+    let subBadge = '';
+    let subBtn   = '';
+    if(u.subStatus === 'active'){
+      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      subBadge = `<span class="sub-badge active">● Active</span><br><span style="font-size:9px;color:var(--ink3)">Exp: ${expStr}</span>`;
+      subBtn   = `<button class="sub-btn lock" onclick="openLockUser('${esc(u.uid)}','${esc(u.name)}')">🔒 Lock</button>`;
+    } else if(u.subStatus === 'expired'){
+      const expStr = u.subExpiry ? u.subExpiry.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      subBadge = `<span class="sub-badge expired">● Expired</span><br><span style="font-size:9px;color:var(--ink3)">Was: ${expStr}</span>`;
+      subBtn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Renew</button>`;
+    } else if(u.subStatus === 'locked'){
+      subBadge = `<span class="sub-badge locked">● Locked</span>`;
+      subBtn   = `<button class="sub-btn unlock" onclick="unlockUser('${esc(u.uid)}','${esc(u.name)}')">🔓 Unlock</button>`;
+    } else {
+      subBadge = `<span class="sub-badge none">● None</span>`;
+      subBtn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Activate</button>`;
+    }
+    return `
+    <tr>
+      <td>
+        <span style="color:var(--ink2);font-weight:600">${esc(u.name)}</span><br>
+        <span class="uid-chip">${esc(u.uid.slice(0,10))}</span>
+      </td>
+      <td>${esc(u.phone)}</td>
+      <td><span class="biz-tag">${esc(u.bizId||'—')}</span></td>
+      <td>
+        <span style="font-weight:600">${fmtDate(u.lastSeen)}</span><br>
+        <span style="color:var(--ink3);font-size:10px">${timeAgo(u.lastSeen)}</span>
+      </td>
+      <td style="text-align:center">${u.records}</td>
+      <td>${statusBadge(u.status)}</td>
+      <td>${subBadge}${subBtn}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pages = Math.ceil(_filtered.length / PAGE_SIZE);
+  const pager = document.getElementById('pager');
+  if(pages <= 1){ pager.innerHTML=''; return; }
+  let btns = `<button class="page-btn" onclick="goPage(${_page-1})" ${_page===0?'disabled':''}>‹</button>`;
+  for(let i=0;i<pages;i++){
+    btns += `<button class="page-btn ${i===_page?'on':''}" onclick="goPage(${i})">${i+1}</button>`;
+  }
+  btns += `<button class="page-btn" onclick="goPage(${_page+1})" ${_page===pages-1?'disabled':''}>›</button>`;
+  pager.innerHTML = btns;
+}
+
+window.goPage = function(p){
+  const pages = Math.ceil(_filtered.length / PAGE_SIZE);
+  if(p<0||p>=pages) return;
+  _page = p;
+  renderTable();
+};
+
+// ── Push Update Notice ────────────────────────────────────────
+window.pushNotice = async function(){
+  const msg = document.getElementById('push-msg').value.trim();
+  const ver = document.getElementById('push-ver').value.trim();
+  if(!msg||!ver){ toast('Enter message and version number first.'); return; }
+  try{
+    await setDoc(doc(db,'_system','update'),{
+      version:ver, message:msg, pushedAt:new Date().toISOString()
+    });
+    toast('✓ Update notice pushed to all users!');
+    document.getElementById('push-msg').value='';
+    document.getElementById('push-ver').value='';
+  } catch(e){ toast('Error: '+e.message); }
+};
+
+// ── Subscription Management ───────────────────────────────────
+let _subTargetUid  = null;
+let _subTargetName = null;
+
+window.openActivateUser = function(uid, name){
+  _subTargetUid  = uid;
+  _subTargetName = name;
+  document.getElementById('sub-modal-title').textContent = 'Activate Subscription';
+  document.getElementById('sub-modal-sub').textContent   = 'Set expiry date for ' + name;
+  // Default to 1 month from today
+  const d = new Date(); d.setMonth(d.getMonth()+1);
+  document.getElementById('sub-expiry-input').value = d.toISOString().slice(0,10);
+  document.getElementById('sub-modal').classList.add('open');
+};
+
+window.openLockUser = function(uid, name){
+  if(!confirm('Lock ' + name + '?\n\nThey will see "Account Suspended" and cannot access the app until unlocked.')) return;
+  lockUser(uid, name);
+};
+
+async function lockUser(uid, name){
+  try {
+    await setDoc(doc(db,'users',uid,'subscription','access'), { status:'locked' });
+    toast('🔒 ' + name + ' locked successfully');
+    loadAll();
+  } catch(e){ toast('Error: '+e.message); }
+}
+
+window.unlockUser = async function(uid, name){
+  if(!confirm('Unlock ' + name + '?\n\nThis will restore their active subscription until the previous expiry date.')) return;
+  try {
+    // Restore to active — they'll need a new expiry set via Activate if it was expired
+    const existing = await getDoc(doc(db,'users',uid,'subscription','access'));
+    const prev = existing.exists() ? existing.data() : {};
+    await setDoc(doc(db,'users',uid,'subscription','access'), {
+      ...prev, status:'active'
+    });
+    toast('🔓 ' + name + ' unlocked');
+    loadAll();
+  } catch(e){ toast('Error: '+e.message); }
+};
+
+window.confirmActivate = async function(){
+  const dateVal = document.getElementById('sub-expiry-input').value;
+  if(!dateVal){ toast('Please pick an expiry date.'); return; }
+  const expiresAt = new Date(dateVal).getTime();
+  if(isNaN(expiresAt)){ toast('Invalid date.'); return; }
+  try {
+    await setDoc(doc(db,'users',_subTargetUid,'subscription','access'), {
+      status: 'active',
+      expiresAt: expiresAt,
+      activatedAt: Date.now()
+    });
+    toast('✓ ' + _subTargetName + ' activated until ' + fmtDate(new Date(dateVal).toISOString()));
+    closeSubModal();
+    loadAll();
+  } catch(e){ toast('Error: '+e.message); }
+};
+
+window.closeSubModal = function(){
+  document.getElementById('sub-modal').classList.remove('open');
+  _subTargetUid = null; _subTargetName = null;
+};
+// Close modal on backdrop click
+document.getElementById('sub-modal').addEventListener('click', e => {
+  if(e.target === document.getElementById('sub-modal')) closeSubModal();
+});
+
+// Auto-focus pin on load
+document.getElementById('pin-input').focus();
+</script>
+
+</body>
+</html>

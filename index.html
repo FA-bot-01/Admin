@@ -1030,10 +1030,15 @@ window.loadAll = async function(){
   _allUsers = activityDocs.map(a => {
     const uid     = a.uid || a.id.replace('activity_','');
     const profile = userProfiles[uid] || {};
-    const pdata   = profile._profile || {};
-    const records = (profile.records || []).length;
-    const settings= profile.settings || {};
-    const sub     = userSubs[uid] || null;
+    const settings = profile._settings || {};
+    const records  = (profile._records || []).length;
+    const sub      = userSubs[uid] || null;
+    // name & phone live in the activity doc; biz comes from _settings
+    const resolvedName    = a.name    || a.displayName || '—';
+    const resolvedPhone   = a.phone   || '—';
+    const resolvedBizName = settings.bizName || settings.bizId || '—';
+    const resolvedBizId   = settings.bizId   || '';
+    if(activityDocs.indexOf(a) < 2) console.log('[FA debug] full profile:', JSON.stringify(profile), '| bizName:', resolvedBizName);
     // Resolve subscription display status
     let subStatus = 'none';
     let subExpiry = null;
@@ -1051,10 +1056,10 @@ window.loadAll = async function(){
     }
     return {
       uid,
-      name:      pdata.name     || '—',
-      phone:     pdata.phone    || '—',
-      bizName:   settings.bizName || settings.bizId || '—',
-      bizId:     settings.bizId   || '',
+      name:      resolvedName,
+      phone:     resolvedPhone,
+      bizName:   resolvedBizName,
+      bizId:     resolvedBizId,
       lastSeen:  a.lastSeen || null,
       records,
       status:    userStatus(a.lastSeen),

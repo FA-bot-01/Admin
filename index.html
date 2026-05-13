@@ -617,7 +617,7 @@ body {
   width:100%; max-width:360px; font-family:var(--mono); }
 @media(min-width:400px){ .sub-modal-card { padding: 28px 24px; } }
 .sub-modal-title { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:4px; }
-.sub-modal-sub   { font-size:10px; color:var(--ink3); margin-bottom:18px; }
+.sub-modal-sub   { font-size:10px; color:var(--ink3); margin-bottom:18px; line-height:1.8; }
 .sub-modal-label { font-size:10px; color:var(--ink2); margin-bottom:4px; display:block; letter-spacing:.06em; text-transform:uppercase; }
 .sub-modal-input { width:100%; padding:11px 12px; border:1px solid var(--rule2); border-radius:8px;
   font-family:var(--mono); font-size:13px; background:var(--paper2); color:var(--ink); margin-bottom:14px;
@@ -913,21 +913,28 @@ function subCells(u){
   const urgentColor = (u.subExpiry && (u.subExpiry.getTime() - Date.now()) < 7 * 86400000)
     ? 'color:var(--red)' : 'color:var(--ink3)';
 
+  // Business info line shown under every subscription state
+  const bizLine = `<span style="font-size:9px;color:var(--ink2);display:block;margin-top:2px">`
+    + `📞 ${esc(u.phone)} · 🏪 ${esc(u.bizName || u.bizId || '—')}</span>`;
+
   if(u.subStatus === 'active'){
     badge = `<span class="sub-badge active">● Active</span><br>`
-          + `<span style="font-size:9px;${urgentColor}" title="Expiry date: ${expStr}">Exp: ${expStr}${hint ? ' · '+hint : ''}</span>`;
+          + `<span style="font-size:9px;${urgentColor}" title="Expiry date: ${expStr}">Exp: ${expStr}${hint ? ' · '+hint : ''}</span>`
+          + bizLine;
     btn   = `<button class="sub-btn lock" onclick="openLockUser('${esc(u.uid)}','${esc(u.name)}')">🔒 Lock</button>`;
   } else if(u.subStatus === 'expired'){
     badge = `<span class="sub-badge expired">● Expired</span><br>`
-          + `<span style="font-size:9px;color:var(--red)" title="Expired: ${expStr}">Was: ${expStr}${hint ? ' · '+hint : ''}</span>`;
-    btn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Renew</button>`;
+          + `<span style="font-size:9px;color:var(--red)" title="Expired: ${expStr}">Was: ${expStr}${hint ? ' · '+hint : ''}</span>`
+          + bizLine;
+    btn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}','${esc(u.phone)}','${esc(u.bizName||u.bizId||'')}')">✓ Renew</button>`;
   } else if(u.subStatus === 'locked'){
     badge = `<span class="sub-badge locked">● Locked</span>`
-          + (u.subExpiry ? `<br><span style="font-size:9px;color:var(--ink3)" title="Expiry: ${expStr}">Exp: ${expStr}</span>` : '');
+          + (u.subExpiry ? `<br><span style="font-size:9px;color:var(--ink3)" title="Expiry: ${expStr}">Exp: ${expStr}</span>` : '')
+          + bizLine;
     btn   = `<button class="sub-btn unlock" onclick="unlockUser('${esc(u.uid)}','${esc(u.name)}')">🔓 Unlock</button>`;
   } else {
-    badge = `<span class="sub-badge none">● None</span>`;
-    btn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}')">✓ Activate</button>`;
+    badge = `<span class="sub-badge none">● None</span>` + bizLine;
+    btn   = `<button class="sub-btn activate" onclick="openActivateUser('${esc(u.uid)}','${esc(u.name)}','${esc(u.phone)}','${esc(u.bizName||u.bizId||'')}')">✓ Activate</button>`;
   }
   return { badge, btn };
 }
@@ -1270,11 +1277,14 @@ window.pushNotice = async function(){
 let _subTargetUid  = null;
 let _subTargetName = null;
 
-window.openActivateUser = function(uid, name){
+window.openActivateUser = function(uid, name, phone, bizName){
   _subTargetUid  = uid;
   _subTargetName = name;
   document.getElementById('sub-modal-title').textContent = 'Activate Subscription';
-  document.getElementById('sub-modal-sub').textContent   = 'Set expiry date for ' + name;
+  document.getElementById('sub-modal-sub').innerHTML =
+    `<strong>${esc(name)}</strong>`
+    + (phone   ? `<br>📞 ${esc(phone)}`   : '')
+    + (bizName ? `<br>🏪 ${esc(bizName)}` : '');
   // Default to 1 month from today
   const d = new Date(); d.setMonth(d.getMonth()+1);
   document.getElementById('sub-expiry-input').value = d.toISOString().slice(0,10);
